@@ -35,7 +35,7 @@ twinlens compares what the photos **look like**, not what their files contain:
 | resized / re-encoded export (PNG)  |        ❌        |    ✅     |
 | brightness / exposure edit         |        ❌        |    ✅     |
 | blurry burst frame                 |        ❌        |    ✅     |
-| small crop (≈ 4 %)                 |        ❌        |  mostly  |
+| small crop (≈ 4 %)                 |        ❌        | sometimes |
 | rotated by EXIF orientation        |        ❌        |    ✅     |
 
 ## Features
@@ -55,6 +55,7 @@ twinlens compares what the photos **look like**, not what their files contain:
 - **Fast re-scans** — results are cached in SQLite keyed by path, size and mtime; hashing runs on every
   CPU core.
 - **HEIC ready** — iPhone photos work with the optional `heif` extra.
+- **Privacy-friendly reports** — paths under your home folder are shown as `~/…`, and nothing leaves your machine.
 
 ## Quick start
 
@@ -221,7 +222,7 @@ twinlens/
 
 ```bash
 pip install -e ".[dev]"
-pytest              # 31 tests, includes a full scan → apply → undo round trip
+pytest              # 32 tests, includes a full scan → apply → undo round trip
 ruff check src tests
 ```
 
@@ -230,11 +231,11 @@ photos. The live demo is rebuilt from the same generator on every push to `main`
 
 ## Known limits & pitfalls
 
-- Crops larger than ~5 % or rotations other than EXIF orientation move the low DCT frequencies too far → raise `--threshold` to ~14 for crop-heavy libraries and review the report.
+- Crops of ~4 % or more and rotations other than EXIF orientation often move the low DCT frequencies too far → raise `--threshold` to ~14 for crop-heavy libraries and review the report.
 - Very flat images (sky, documents, solid colours) have few strong frequencies, so unrelated shots can land close in pHash → the dHash check catches most; keep the default threshold for screenshots and scans.
 - `.heic` files are skipped with an error unless `pillow-heif` is installed → `pip install -e ".[heif]"`.
 - Bursts are grouped by similarity, so a burst of genuinely different moments can still collapse into one group → use **Keep** on every frame you want before exporting the plan.
-- Running `python -m twinlens` from your own script on Windows/macOS spawns worker processes → keep the call under `if __name__ == "__main__":`, or pass `-w 1`.
+- Calling `twinlens.scanner.scan(..., workers>1)` or `twinlens.cli.main()` from your own script spawns worker processes on Windows/macOS → put the call under `if __name__ == "__main__":`, or use `workers=1`.
 
 ## License
 

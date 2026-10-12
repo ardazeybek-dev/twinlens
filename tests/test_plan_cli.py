@@ -132,3 +132,10 @@ def test_report_escapes_script_breakers(tmp_path):
 
     html = render_html({"version": "x", "summary": {}, "plan": {}, "clusters": [], "evil": "</script><b>"})
     assert "</script><b>" not in html
+
+
+def test_display_path_hides_home():
+    from twinlens.cli import display_path
+
+    shown = display_path(Path.home() / "Pictures" / "2024")
+    assert shown.startswith("~") and Path.home().name not in shown

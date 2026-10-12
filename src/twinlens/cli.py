@@ -64,6 +64,14 @@ def human_bytes(n: float) -> str:
     return f"{n:.1f} TB"
 
 
+def display_path(path: Path) -> str:
+    """Show paths under the home folder as ~/… so shared reports don't reveal the username."""
+    try:
+        return str(Path("~") / path.relative_to(Path.home()))
+    except ValueError:
+        return str(path)
+
+
 def _progress(done: int, total: int) -> None:
     if not sys.stderr.isatty() or total == 0:
         return
@@ -101,7 +109,7 @@ def cmd_scan(args: argparse.Namespace, cfg: Config) -> int:
     n = len(result.records)
     summary = {
         "created": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-        "roots": [str(r) for r in roots],
+        "roots": [display_path(r) for r in roots],
         "photos": n,
         "bytes": sum(r.size for r in result.records),
         "threshold": cfg.threshold,
