@@ -1,0 +1,33 @@
+# secrets / local config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# twinlens outputs
+.twinlens/
+twinlens-report/
+twinlens-quarantine/
+demo-photos/
+site/
+*.twinlens-cache.sqlite
+
+# editors / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

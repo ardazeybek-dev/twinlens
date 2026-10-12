@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, arda]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install ruff
+      - run: ruff check src tests
+
+  test:
+    name: test (${{ matrix.os }}, py${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: pytest
+      - name: CLI smoke test
+        shell: bash
+        run: |
+          twinlens demo demo-photos --scenes 4
+          twinlens scan demo-photos --no-cache --json scan.json
+          twinlens apply twinlens-report/plan.json --yes
+          twinlens undo
+          test -f twinlens-report/index.html
